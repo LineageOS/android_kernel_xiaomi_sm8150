@@ -37,6 +37,9 @@
 #include "sde_crtc.h"
 #include "sde_trace.h"
 #include "sde_core_irq.h"
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+#include "dsi_drm.h"
+#endif
 #include "sde_hw_top.h"
 #include "sde_hw_qdss.h"
 
@@ -4757,6 +4760,14 @@ int sde_encoder_prepare_for_kickoff(struct drm_encoder *drm_enc,
 		sde_configure_qdss(sde_enc, sde_enc->cur_master->hw_qdss,
 				sde_enc->cur_master, sde_kms->qdss_enabled);
 
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+	if (sde_enc->cur_master && sde_enc->cur_master->connector) {
+		struct sde_connector *c_conn;
+		c_conn = to_sde_connector(sde_enc->cur_master->connector);
+		sde_connector_update_hbm(c_conn);
+	}
+#endif
+
 end:
 	SDE_ATRACE_END("sde_encoder_prepare_for_kickoff");
 	return ret;
@@ -4837,6 +4848,14 @@ void sde_encoder_kickoff(struct drm_encoder *drm_enc, bool is_error)
 		mod_timer(&sde_enc->vsync_event_timer,
 				nsecs_to_jiffies(ktime_to_ns(wakeup_time)));
 	}
+
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+	if (drm_enc->bridge && drm_enc->bridge->is_dsi_drm_bridge) {
+		struct dsi_bridge *c_bridge = container_of((drm_enc->bridge), struct dsi_bridge, base);
+		if (c_bridge && c_bridge->display && c_bridge->display->panel)
+			c_bridge->display->panel->kickoff_count++;
+	}
+#endif
 
 	SDE_ATRACE_END("encoder_kickoff");
 }
@@ -5330,6 +5349,9 @@ static int sde_encoder_setup_display(struct sde_encoder_virt *sde_enc,
 	} else if (disp_info->intf_type == DRM_MODE_CONNECTOR_VIRTUAL) {
 		*drm_enc_mode = DRM_MODE_ENCODER_VIRTUAL;
 		intf_type = INTF_WB;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+		phys_params.parent_ops.handle_vblank_virt = NULL;
+#endif
 	} else {
 		SDE_ERROR_ENC(sde_enc, "unsupported display interface type\n");
 		return -EINVAL;

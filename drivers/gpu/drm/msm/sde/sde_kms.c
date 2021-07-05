@@ -1167,6 +1167,9 @@ static void sde_kms_complete_commit(struct msm_kms *kms,
 			pr_err("Connector Post kickoff failed rc=%d\n",
 					 rc);
 		}
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+		sde_connector_fod_notify(connector);
+#endif
 	}
 
 	sde_power_resource_enable(&priv->phandle, sde_kms->core_client, false);

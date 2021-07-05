@@ -20,6 +20,8 @@ drm-y       :=	drm_auth.o drm_bufs.o drm_cache.o \
 		drm_dumb_buffers.o drm_mode_config.o drm_vblank.o \
 		drm_syncobj.o drm_lease.o
 
+drm-$(CONFIG_MACH_XIAOMI_SM8150) += drm_notifier_mi.o
+
 drm-$(CONFIG_DRM_LIB_RANDOM) += lib/drm_random.o
 drm-$(CONFIG_DRM_VM) += drm_vm.o
 drm-$(CONFIG_COMPAT) += drm_ioc32.o

@@ -305,6 +305,9 @@ struct sde_crtc {
 
 	/* blob for histogram data */
 	struct drm_property_blob *hist_blob;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+	bool is_primary_sde_crtc;
+#endif
 };
 
 #define to_sde_crtc(x) container_of(x, struct sde_crtc, base)
@@ -436,6 +439,11 @@ struct sde_crtc_state {
 	u32 padding_active;
 	u32 padding_dummy;
 
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+	bool finger_down;
+	bool dim_layer_status;
+	struct sde_hw_dim_layer *fingerprint_dim_layer;
+#endif
 	struct sde_crtc_respool rp;
 };
 
@@ -858,5 +866,9 @@ int sde_crtc_calc_vpadding_param(struct drm_crtc_state *state,
  */
 int sde_crtc_get_num_datapath(struct drm_crtc *crtc,
 		struct drm_connector *connector);
+
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+uint32_t sde_crtc_get_mi_fod_sync_info(struct sde_crtc_state *cstate);
+#endif
 
 #endif /* _SDE_CRTC_H_ */

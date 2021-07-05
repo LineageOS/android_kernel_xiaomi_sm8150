@@ -336,6 +336,21 @@ enum sde_connector_events {
 	SDE_CONN_EVENT_COUNT,
 };
 
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+enum mi_dimlayer_type {
+	MI_DIMLAYER_NULL = 0x0,
+	MI_DIMLAYER_FOD_HBM_OVERLAY = 0x1,
+	MI_DIMLAYER_FOD_ICON = 0x2,
+	MI_DIMLAYER_AOD = 0x4,
+	MI_FOD_UNLOCK_SUCCESS = 0x8,
+	MI_DIMLAYER_MAX,
+};
+
+struct mi_dimlayer_state{
+	enum mi_dimlayer_type mi_dimlayer_type;
+};
+#endif
+
 /**
  * struct sde_connector_evt - local event registration entry structure
  * @cb_func: Pointer to desired callback function
@@ -444,6 +459,9 @@ struct sde_connector {
 
 	bool last_cmd_tx_sts;
 	bool hdr_capable;
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+	struct mi_dimlayer_state mi_dimlayer_state;
+#endif
 };
 
 /**
@@ -907,5 +925,14 @@ int sde_connector_get_panel_vfp(struct drm_connector *connector,
  * @connector: Pointer to DRM connector object
  */
 int sde_connector_esd_status(struct drm_connector *connector);
+
+#ifdef CONFIG_MACH_XIAOMI_SM8150
+void sde_connector_mi_update_dimlayer_state(struct drm_connector *connector,
+	enum mi_dimlayer_type mi_dimlayer_type);
+
+int sde_connector_update_hbm(struct sde_connector *c_conn);
+
+void sde_connector_fod_notify(struct drm_connector *connector);
+#endif
 
 #endif /* _SDE_CONNECTOR_H_ */
